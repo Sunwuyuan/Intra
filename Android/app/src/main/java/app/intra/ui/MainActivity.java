@@ -102,9 +102,6 @@ public class MainActivity extends AppCompatActivity
   public static final int RESULT_OK = -1;
 
   private ActionBarDrawerToggle drawerToggle;
-  private RecyclerView recyclerView;
-  private RecyclerAdapter adapter;
-  private RecyclerView.LayoutManager layoutManager;
   private View controlView = null;
   private Timer activityTimer;
 
@@ -125,13 +122,7 @@ public class MainActivity extends AppCompatActivity
 
   private void updateStatsDisplay(long numRequests, Transaction transaction) {
     showNumRequests(numRequests);
-    showTransaction(transaction);
-  }
-
-  private void showTransaction(Transaction transaction) {
-    if (isHistoryEnabled()) {
-      adapter.add(transaction);
-    }
+    // Transaction display moved to QueryHistoryActivity
   }
 
   private void showNumRequests(long numRequests) {
@@ -233,14 +224,7 @@ public class MainActivity extends AppCompatActivity
       }
     });
 
-    // Set up the recycler
-    recyclerView = (RecyclerView) findViewById(R.id.recycler);
-    recyclerView.setHasFixedSize(true);
-    layoutManager = new LinearLayoutManager(this);
-    recyclerView.setLayoutManager(layoutManager);
-    adapter = new RecyclerAdapter(this);
-    adapter.reset(getHistory());
-    recyclerView.setAdapter(adapter);
+    // History is now on a separate page - RecyclerView removed from main activity
 
     // Register broadcast receiver
     IntentFilter intentFilter = new IntentFilter(InternalNames.RESULT.name());
@@ -280,22 +264,7 @@ public class MainActivity extends AppCompatActivity
           }
         });
 
-    final CheckBox showHistory = (CheckBox) controlView.findViewById(R.id.show_history);
-    showHistory.setChecked(isHistoryEnabled());
-
-    final QueryTracker tracker = VpnController.getInstance().getTracker(this);
-    showHistory.setOnCheckedChangeListener(
-        new CompoundButton.OnCheckedChangeListener() {
-          @Override
-          public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            tracker.setHistoryEnabled(isChecked);
-
-            if (!isChecked) {
-              // Clear the visual state immediately
-              adapter.reset(null);
-            }
-          }
-        });
+    // History tracking is always enabled now - checkbox removed
 
     // The try-all-servers button is normally hidden, and only becomes visible in the failing state.
     final Button tryAllButton = controlView.findViewById(R.id.try_all_servers_button);
@@ -324,6 +293,13 @@ public class MainActivity extends AppCompatActivity
         tryAllButton.setText(R.string.try_all_servers);
         tryAllButton.setEnabled(true);
       }));
+    });
+
+    // Set up the View History button
+    final Button viewHistoryButton = controlView.findViewById(R.id.view_history_button);
+    viewHistoryButton.setOnClickListener((View view) -> {
+      Intent intent = new Intent(MainActivity.this, QueryHistoryActivity.class);
+      startActivity(intent);
     });
 
     // Set up click listeners for the info boxes.

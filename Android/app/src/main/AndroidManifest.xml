@@ -28,6 +28,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="app.intra.ui.QueryHistoryActivity"
+            android:exported="false"
+            android:label="@string/query_history_title"
+            android:parentActivityName="app.intra.ui.MainActivity" />
+
         <service
             android:name="app.intra.sys.IntraVpnService"
             android:exported="false"

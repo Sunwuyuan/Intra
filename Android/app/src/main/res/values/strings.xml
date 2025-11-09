@@ -431,4 +431,14 @@
   only visible in the system's advanced notifications settings page.">
     Shown when Intra has encountered a problem.
   </string>
+
+  <!-- Query History Screen -->
+  <string name="query_history_title">Query History</string>
+  <string name="search_queries">Search queries...</string>
+  <string name="filter_by_status">Filter by status:</string>
+  <string name="filter_all">All</string>
+  <string name="filter_complete">Complete</string>
+  <string name="filter_failed">Failed</string>
+  <string name="query_failed">Failed</string>
+  <string name="view_history">View History</string>
 </resources>

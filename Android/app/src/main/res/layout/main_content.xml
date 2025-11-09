@@ -86,12 +86,13 @@
             tools:text="@string/explanation_vpn"
             android:textColor="@color/indicator"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/try_all_servers_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/try_all_servers"
         android:visibility="invisible"
+        style="@style/Widget.Material3.Button.TonalButton"
         app:layout_constraintEnd_toStartOf="@id/dns_switch"
         app:layout_constraintStart_toStartOf="@id/status"
         app:layout_constraintTop_toBottomOf="@id/explanation"
@@ -118,12 +119,17 @@
       android:layout_marginTop="16dp"
       android:background="#FF000000"/>
 
-  <CheckBox
-      android:id="@+id/show_history"
+  <!-- View History Button - Material 3 -->
+  <com.google.android.material.button.MaterialButton
+      android:id="@+id/view_history_button"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:layout_marginStart="16dp"
+      android:layout_marginEnd="16dp"
       android:layout_marginBottom="16dp"
-      android:checked="false"
-      android:text="@string/show_history"/>
+      android:text="@string/view_history"
+      app:icon="@drawable/ic_trending_up_black_24dp"
+      app:iconGravity="start"
+      style="@style/Widget.Material3.Button.OutlinedButton" />
 
 </LinearLayout>

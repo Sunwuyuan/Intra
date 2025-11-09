@@ -1,7 +1,7 @@
 <resources>
 
-  <!-- Base application theme. -->
-  <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+  <!-- Base application theme - Material 3 -->
+  <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
     <!-- Customizations go here. -->
     <item name="android:textColorLink">?android:textColorPrimary</item>
     <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
@@ -9,12 +9,17 @@
     <item name="android:colorBackground">@color/background</item>
     <item name="colorPrimary">@color/background</item>
     <item name="colorPrimaryDark">@color/background</item>
+    <!-- Material 3 color attributes -->
+    <item name="colorPrimaryContainer">@color/accent_good</item>
+    <item name="colorOnPrimaryContainer">@android:color/white</item>
+    <item name="colorSecondaryContainer">@color/floating</item>
   </style>
-  <style name="Biggest" parent="TextAppearance.AppCompat.Display1">
+  
+  <style name="Biggest" parent="TextAppearance.Material3.DisplayLarge">
     <item name="android:textSize">48sp</item>
   </style>
 
-  <style name="FullScreenDialog" parent="Theme.AppCompat.Dialog">
+  <style name="FullScreenDialog" parent="Theme.Material3.Light.Dialog">
     <item name="android:windowIsFloating">false</item>
     <item name="android:windowBackground">@color/background</item>
   </style>

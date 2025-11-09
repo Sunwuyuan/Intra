@@ -21,10 +21,24 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Install Android NDK
+      run: |
+        sdkmanager --install "ndk;25.2.9519653"
+        echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/25.2.9519653" >> $GITHUB_ENV
+
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version-file: '${{ github.workspace }}/go.mod'
+        
+    - name: Install gomobile
+      run: |
+        go install golang.org/x/mobile/cmd/gomobile@latest
+        go install golang.org/x/mobile/cmd/gobind@latest
+        gomobile init
 
     - name: Cache Gradle packages
       uses: actions/cache@v4
@@ -44,9 +58,8 @@ jobs:
       continue-on-error: true
 
     - name: Build debug APK
-      run: cd Android && ./gradlew assembleDebug --stacktrace
-      continue-on-error: true
-
+      run: cd Android && ./gradlew assembleDebug --stacktrace --info
+      
     - name: Upload debug APK
       uses: actions/upload-artifact@v4
       if: success()
@@ -56,7 +69,7 @@ jobs:
         retention-days: 30
 
     - name: Build release APK (unsigned)
-      run: cd Android && ./gradlew assembleRelease --stacktrace || echo "Release build requires signing keys"
+      run: cd Android && ./gradlew assembleRelease --stacktrace --info || echo "Release build requires signing keys"
       continue-on-error: true
 
     - name: Upload release APK

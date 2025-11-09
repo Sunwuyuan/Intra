@@ -840,6 +840,70 @@ public class MainActivity extends AppCompatActivity
 
     TextView body = view.findViewById(R.id.info_body);
     body.setText(page.body);
+    
+    // Show additional information card
+    View additionalCard = view.findViewById(R.id.additional_info_card);
+    TextView detailsText = view.findViewById(R.id.info_details);
+    
+    // Add detailed information based on the page type
+    String details = getAdditionalInfo(page);
+    if (details != null && !details.isEmpty()) {
+      additionalCard.setVisibility(View.VISIBLE);
+      detailsText.setText(details);
+    } else {
+      additionalCard.setVisibility(View.GONE);
+    }
+  }
+  
+  private String getAdditionalInfo(InfoPage page) {
+    switch (page) {
+      case LIFETIME_QUERIES:
+        long totalQueries = VpnController.getInstance().getTracker(this).getNumRequests();
+        return String.format(Locale.getDefault(), 
+            "Total queries protected: %,d\n\nThis represents all DNS queries that have been securely " +
+            "processed through Intra since you started using the app. Each query represents a domain " +
+            "name lookup that was encrypted and protected from manipulation.", totalQueries);
+      
+      case RECENT_QUERIES:
+        long oneMinuteAgo = SystemClock.elapsedRealtime() - 60 * 1000;
+        long recentCount = VpnController.getInstance().getTracker(this).countQueriesSince(oneMinuteAgo);
+        return String.format(Locale.getDefault(),
+            "Queries in the last minute: %d\n\nThis shows your real-time DNS activity. " +
+            "Higher numbers indicate more active internet usage. Each app query and website visit " +
+            "may generate multiple DNS lookups.", recentCount);
+      
+      case SECURE_PROTOCOL:
+        return "DNS-over-HTTPS (DoH) encrypts your DNS queries using HTTPS, the same technology " +
+            "that secures your web browsing. This prevents your ISP or network operator from seeing " +
+            "or modifying which websites you visit.\n\nProtocol: HTTPS\nEncryption: TLS 1.2+\n" +
+            "Standard: RFC 8484";
+      
+      case SECURE_SERVER:
+        String serverUrl = PersistentState.getServerUrl(this);
+        String serverName = PersistentState.getServerName(this);
+        return String.format("Current server: %s\n\nURL: %s\n\n" +
+            "This is your secure DNS resolver. All your DNS queries are sent to this server " +
+            "using encrypted connections. You can change this in Settings.", serverName, serverUrl);
+      
+      case DEFAULT_PROTOCOL:
+        return "Without DNS protection, your queries are sent in plain text (UDP port 53 or TCP port 53). " +
+            "This means your ISP, network operator, or anyone on your network can see which websites " +
+            "you're visiting and potentially block or redirect them.\n\n" +
+            "Enable Intra to protect your DNS queries.";
+      
+      case DEFAULT_SERVER:
+        String systemDns = getSystemDnsServer();
+        if (systemDns == null) {
+          systemDns = "Unknown";
+        }
+        return String.format("System DNS Server: %s\n\n" +
+            "This is the DNS server provided by your network. Without Intra, all your DNS queries " +
+            "go here unencrypted. This server is typically controlled by your ISP or network administrator.",
+            systemDns);
+      
+      default:
+        return null;
+    }
   }
 
   // Hyperlinks need to be filled in whenever the layout is instantiated.

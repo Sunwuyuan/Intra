@@ -441,4 +441,7 @@
   <string name="filter_failed">Failed</string>
   <string name="query_failed">Failed</string>
   <string name="view_history">View History</string>
+  
+  <!-- Info Page Additional Details -->
+  <string name="additional_info">Additional Information</string>
 </resources>

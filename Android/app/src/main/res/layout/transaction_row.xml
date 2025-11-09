@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="1dp"
-    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-    android:layout_marginRight="@dimen/activity_horizontal_margin"
-    android:layout_marginBottom="1dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="8dp">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:animateLayoutChanges="true"
     android:orientation="vertical"
     android:background="@color/floating">
@@ -49,14 +55,14 @@
         android:layout_weight="0.1"/>
 
     <TextView
-        android:id="@+id/response_time"
+        android:id="@+id/latency"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|center_vertical"
         android:layout_weight="0"
         android:singleLine="true"
         android:textColor="@color/accent_good"
-        tools:text="17:54:11"/>
+        tools:text="25 ms"/>
 
     <!-- This button's background image is set by Java code as a workaround for lack of support
     for vector background drawables on pre-Lollipop Android.  See
@@ -294,3 +300,4 @@
         tools:text="US (192.0.2.1)"/>
   </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

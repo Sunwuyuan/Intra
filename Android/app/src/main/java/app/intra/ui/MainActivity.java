@@ -102,9 +102,6 @@ public class MainActivity extends AppCompatActivity
   public static final int RESULT_OK = -1;
 
   private ActionBarDrawerToggle drawerToggle;
-  private RecyclerView recyclerView;
-  private RecyclerAdapter adapter;
-  private RecyclerView.LayoutManager layoutManager;
   private View controlView = null;
   private Timer activityTimer;
 
@@ -125,13 +122,7 @@ public class MainActivity extends AppCompatActivity
 
   private void updateStatsDisplay(long numRequests, Transaction transaction) {
     showNumRequests(numRequests);
-    showTransaction(transaction);
-  }
-
-  private void showTransaction(Transaction transaction) {
-    if (isHistoryEnabled()) {
-      adapter.add(transaction);
-    }
+    // Transaction display moved to QueryHistoryActivity
   }
 
   private void showNumRequests(long numRequests) {
@@ -233,14 +224,7 @@ public class MainActivity extends AppCompatActivity
       }
     });
 
-    // Set up the recycler
-    recyclerView = (RecyclerView) findViewById(R.id.recycler);
-    recyclerView.setHasFixedSize(true);
-    layoutManager = new LinearLayoutManager(this);
-    recyclerView.setLayoutManager(layoutManager);
-    adapter = new RecyclerAdapter(this);
-    adapter.reset(getHistory());
-    recyclerView.setAdapter(adapter);
+    // History is now on a separate page - RecyclerView removed from main activity
 
     // Register broadcast receiver
     IntentFilter intentFilter = new IntentFilter(InternalNames.RESULT.name());
@@ -280,22 +264,7 @@ public class MainActivity extends AppCompatActivity
           }
         });
 
-    final CheckBox showHistory = (CheckBox) controlView.findViewById(R.id.show_history);
-    showHistory.setChecked(isHistoryEnabled());
-
-    final QueryTracker tracker = VpnController.getInstance().getTracker(this);
-    showHistory.setOnCheckedChangeListener(
-        new CompoundButton.OnCheckedChangeListener() {
-          @Override
-          public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            tracker.setHistoryEnabled(isChecked);
-
-            if (!isChecked) {
-              // Clear the visual state immediately
-              adapter.reset(null);
-            }
-          }
-        });
+    // History tracking is always enabled now - checkbox removed
 
     // The try-all-servers button is normally hidden, and only becomes visible in the failing state.
     final Button tryAllButton = controlView.findViewById(R.id.try_all_servers_button);
@@ -324,6 +293,13 @@ public class MainActivity extends AppCompatActivity
         tryAllButton.setText(R.string.try_all_servers);
         tryAllButton.setEnabled(true);
       }));
+    });
+
+    // Set up the View History button
+    final Button viewHistoryButton = controlView.findViewById(R.id.view_history_button);
+    viewHistoryButton.setOnClickListener((View view) -> {
+      Intent intent = new Intent(MainActivity.this, QueryHistoryActivity.class);
+      startActivity(intent);
     });
 
     // Set up click listeners for the info boxes.
@@ -864,6 +840,70 @@ public class MainActivity extends AppCompatActivity
 
     TextView body = view.findViewById(R.id.info_body);
     body.setText(page.body);
+    
+    // Show additional information card
+    View additionalCard = view.findViewById(R.id.additional_info_card);
+    TextView detailsText = view.findViewById(R.id.info_details);
+    
+    // Add detailed information based on the page type
+    String details = getAdditionalInfo(page);
+    if (details != null && !details.isEmpty()) {
+      additionalCard.setVisibility(View.VISIBLE);
+      detailsText.setText(details);
+    } else {
+      additionalCard.setVisibility(View.GONE);
+    }
+  }
+  
+  private String getAdditionalInfo(InfoPage page) {
+    switch (page) {
+      case LIFETIME_QUERIES:
+        long totalQueries = VpnController.getInstance().getTracker(this).getNumRequests();
+        return String.format(Locale.getDefault(), 
+            "Total queries protected: %,d\n\nThis represents all DNS queries that have been securely " +
+            "processed through Intra since you started using the app. Each query represents a domain " +
+            "name lookup that was encrypted and protected from manipulation.", totalQueries);
+      
+      case RECENT_QUERIES:
+        long oneMinuteAgo = SystemClock.elapsedRealtime() - 60 * 1000;
+        long recentCount = VpnController.getInstance().getTracker(this).countQueriesSince(oneMinuteAgo);
+        return String.format(Locale.getDefault(),
+            "Queries in the last minute: %d\n\nThis shows your real-time DNS activity. " +
+            "Higher numbers indicate more active internet usage. Each app query and website visit " +
+            "may generate multiple DNS lookups.", recentCount);
+      
+      case SECURE_PROTOCOL:
+        return "DNS-over-HTTPS (DoH) encrypts your DNS queries using HTTPS, the same technology " +
+            "that secures your web browsing. This prevents your ISP or network operator from seeing " +
+            "or modifying which websites you visit.\n\nProtocol: HTTPS\nEncryption: TLS 1.2+\n" +
+            "Standard: RFC 8484";
+      
+      case SECURE_SERVER:
+        String serverUrl = PersistentState.getServerUrl(this);
+        String serverName = PersistentState.getServerName(this);
+        return String.format("Current server: %s\n\nURL: %s\n\n" +
+            "This is your secure DNS resolver. All your DNS queries are sent to this server " +
+            "using encrypted connections. You can change this in Settings.", serverName, serverUrl);
+      
+      case DEFAULT_PROTOCOL:
+        return "Without DNS protection, your queries are sent in plain text (UDP port 53 or TCP port 53). " +
+            "This means your ISP, network operator, or anyone on your network can see which websites " +
+            "you're visiting and potentially block or redirect them.\n\n" +
+            "Enable Intra to protect your DNS queries.";
+      
+      case DEFAULT_SERVER:
+        String systemDns = getSystemDnsServer();
+        if (systemDns == null) {
+          systemDns = "Unknown";
+        }
+        return String.format("System DNS Server: %s\n\n" +
+            "This is the DNS server provided by your network. Without Intra, all your DNS queries " +
+            "go here unencrypted. This server is typically controlled by your ISP or network administrator.",
+            systemDns);
+      
+      default:
+        return null;
+    }
   }
 
   // Hyperlinks need to be filled in whenever the layout is instantiated.
